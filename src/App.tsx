@@ -3,6 +3,7 @@ import { GameApp } from './game/GameApp'
 import { LogIn, Play, Settings } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CHARACTERS } from './game/data/characters'
+import { input } from './utils/InputManager'
 
 function App() {
   const canvasRef = useRef<HTMLDivElement>(null)
@@ -108,7 +109,13 @@ function App() {
     <div className="game-container">
       {gameState === 'playing' ? (
         <div ref={canvasRef} style={{ width: '100%', height: '100%' }} />
-      ) : (
+      ) : null}
+
+      {gameState === 'playing' && (
+        <MobileJoystick />
+      )}
+
+      {gameState !== 'playing' ? (
         <AnimatePresence>
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -145,7 +152,7 @@ function App() {
 
                 <div className="flex flex-col gap-2" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 600 }}>SELECT CHARACTER</p>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+                  <div className="char-select-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
                     {Object.values(CHARACTERS).map(char => (
                       <button
                         key={char.id}
@@ -213,7 +220,7 @@ function App() {
             </div>
           </motion.div>
         </AnimatePresence>
-      )}
+      ) : null}
 
       {/* Overlay UI when playing */}
       {gameState === 'playing' && (
@@ -460,6 +467,61 @@ function App() {
       )}
     </div>
   )
+}
+
+function MobileJoystick() {
+  const joystickRef = useRef<HTMLDivElement>(null);
+  const handleRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(false);
+
+  const handleTouch = (e: React.TouchEvent | React.MouseEvent) => {
+    if (!joystickRef.current || !handleRef.current) return;
+
+    const rect = joystickRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
+
+    let dx = clientX - centerX;
+    let dy = clientY - centerY;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    const maxDist = 40;
+
+    if (dist > maxDist) {
+      dx *= maxDist / dist;
+      dy *= maxDist / dist;
+    }
+
+    handleRef.current.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+
+    // Update InputManager
+    input.virtualAxis.x = dx / maxDist;
+    input.virtualAxis.y = dy / maxDist;
+  };
+
+  const stopTouch = () => {
+    setActive(false);
+    if (handleRef.current) {
+      handleRef.current.style.transform = 'translate(-50%, -50%)';
+    }
+    input.virtualAxis.x = 0;
+    input.virtualAxis.y = 0;
+  };
+
+  return (
+    <div
+      ref={joystickRef}
+      className="joystick-container joystick-show"
+      onPointerDown={(e) => { setActive(true); handleTouch(e as any); }}
+      onPointerMove={(e) => { if (active) handleTouch(e as any); }}
+      onPointerUp={stopTouch}
+      onPointerLeave={stopTouch}
+    >
+      <div ref={handleRef} className="joystick-handle" />
+    </div>
+  );
 }
 
 export default App

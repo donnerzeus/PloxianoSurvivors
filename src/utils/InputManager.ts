@@ -1,5 +1,6 @@
 export class InputManager {
     private keys: Record<string, boolean> = {};
+    public virtualAxis = { x: 0, y: 0 };
 
     constructor() {
         window.addEventListener('keydown', (e) => this.keys[e.code] = true);
@@ -11,16 +12,17 @@ export class InputManager {
     }
 
     public get axis() {
-        let x = 0;
-        let y = 0;
+        let x = this.virtualAxis.x;
+        let y = this.virtualAxis.y;
+
         if (this.isDown('ArrowLeft') || this.isDown('KeyA')) x -= 1;
         if (this.isDown('ArrowRight') || this.isDown('KeyD')) x += 1;
         if (this.isDown('ArrowUp') || this.isDown('KeyW')) y -= 1;
         if (this.isDown('ArrowDown') || this.isDown('KeyS')) y += 1;
 
         // Normalize
-        if (x !== 0 && y !== 0) {
-            const mag = Math.sqrt(x * x + y * y);
+        const mag = Math.sqrt(x * x + y * y);
+        if (mag > 1) {
             x /= mag;
             y /= mag;
         }
