@@ -27,7 +27,7 @@ export class SpawnSystem {
 
             for (let i = 0; i < count; i++) {
                 const angle = this.rng() * Math.PI * 2;
-                const dist = 600 + this.rng() * 200;
+                const dist = 800 + this.rng() * 200;
                 const x = Math.cos(angle) * dist;
                 const y = Math.sin(angle) * dist;
 

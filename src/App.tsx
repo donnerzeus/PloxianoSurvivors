@@ -348,7 +348,7 @@ function App() {
                       LEVEL UP!
                     </motion.h2>
 
-                    <div style={{ display: 'flex', gap: '24px', justifyContent: 'center' }}>
+                    <div className="upgrade-cards-container" style={{ display: 'flex', gap: '24px', justifyContent: 'center' }}>
                       {upgrades.map((upgrade, idx) => (
                         <motion.button
                           key={upgrade.id}
@@ -359,13 +359,13 @@ function App() {
                           onClick={() => handleUpgrade(upgrade.id)}
                           className={`glass-premium ${upgrade.id.endsWith('_evo') ? 'glow-purple' : (upgrade.type === 'active' ? 'glow-blue' : 'glow-gold')}`}
                           style={{
-                            width: '240px',
-                            minHeight: '340px',
-                            padding: '32px',
+                            width: 'min(240px, 80vw)',
+                            minHeight: '280px',
+                            padding: '24px',
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'center',
-                            gap: '20px',
+                            gap: '16px',
                             textAlign: 'center',
                             cursor: 'pointer'
                           }}

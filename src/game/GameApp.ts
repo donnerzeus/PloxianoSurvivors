@@ -520,8 +520,12 @@ export class GameApp {
         if (!this.player) return;
 
         // Follow player - keep player in center
-        let targetX = this.app.screen.width / 2 - this.player.x;
-        let targetY = this.app.screen.height / 2 - this.player.y;
+        // ZOOM OUT: Set world scale (0.8 = 20% more view area)
+        const zoom = 0.8;
+        this.worldContainer.scale.set(zoom);
+
+        let targetX = this.app.screen.width / 2 - this.player.x * zoom;
+        let targetY = this.app.screen.height / 2 - this.player.y * zoom;
 
         // Apply screen shake
         if (this.shakeIntensity > 0) {
